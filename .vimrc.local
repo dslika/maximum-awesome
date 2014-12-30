@@ -1,0 +1,150 @@
+" keyboard shortcuts
+inoremap jj <ESC>
+
+nnoremap Y y$
+
+"highlight search
+"set hlsearch
+"nmap <leader>hl :let @/ = ""<CR>
+"
+" バックスラッシュやクエスチョンを状況に合わせ自動的にエスケープ
+cnoremap <expr> / getcmdtype() == '/' ? '\/' : '/'
+cnoremap <expr> ? getcmdtype() == '?' ? '\?' : '?'
+
+set textwidth=0         " 自動的に改行が入るのを無効化
+set colorcolumn=80      " その代わり80文字目にラインを入れる
+set listchars=tab:»-,trail:-,extends:»,precedes:«,nbsp:%
+
+" 対応括弧に'<'と'>'のペアを追加
+set matchpairs& matchpairs+=<:>
+" バックスペースでなんでも消せるようにする
+set backspace=indent,eol,start
+
+set nowritebackup
+set nobackup
+set noswapfile
+" 前時代的スクリーンベルを無効化
+set t_vb=
+set novisualbell
+
+"保存時に自動でチェック
+let g:PyFlakeOnWrite = 1
+"解析種別を設定
+let g:PyFlakeCheckers = 'pep8,mccabe,flake8'
+"McCabe複雑度の最大値
+let g:PyFlakeDefaultComplexity=10
+"visualモードでQを押すと自動で修正
+let g:PyFlakeRangeCommand = 'Q'
+
+autocmd FileType python setl autoindent
+autocmd FileType python setl smartindent cinwords=if,elif,else,for,while,try,except,finally,def,class
+
+" 検索後にジャンプした際に検索単語を画面中央に持ってくる
+nnoremap n nzz
+nnoremap N Nzz
+nnoremap * *zz
+nnoremap # #zz
+nnoremap g* g*zz
+nnoremap g# g#zz
+
+"*****************************************************************************
+"" Abbreviations
+"*****************************************************************************
+"" no one is really happy until you have this shortcuts
+cnoreabbrev W! w!
+cnoreabbrev Q! q!
+cnoreabbrev Wq wq
+cnoreabbrev Wa wa
+cnoreabbrev wQ wq
+cnoreabbrev WQ wq
+cnoreabbrev W w
+cnoreabbrev Q q
+
+"*****************************************************************************
+"" Functions
+"*****************************************************************************
+function s:setupWrapping()
+  set wrap
+  set wm=2
+  set textwidth=79
+endfunction
+
+function TrimWhiteSpace()
+  let @*=line(".")
+  %s/\s*$//e
+  ''
+endfunction
+
+"*****************************************************************************
+"" Mappings
+"*****************************************************************************
+"" Split
+noremap <Leader>h :<C-u>split<CR>
+noremap <Leader>v :<C-u>vsplit<CR>
+
+"" Git
+noremap <Leader>ga :!git add .<CR>
+noremap <Leader>gc :!git commit -m '<C-R>="'"<CR>
+noremap <Leader>gsh :!git push<CR>
+noremap <Leader>gs :Gstatus<CR>
+noremap <Leader>gb :Gblame<CR>
+" noremap <Leader>gd :Gvdiff<CR>
+" noremap <Leader>gr :Gremove<CR>
+
+"" Tabs
+nnoremap <Tab> gt
+nnoremap <S-Tab> gT
+nnoremap <silent> <S-t> :tabnew<CR>
+
+"" Set working directory
+nnoremap <leader>. :lcd %:p:h<CR>
+
+"" Opens an edit command with the path of the currently edited file filled in
+noremap <Leader>e :e <C-R>=expand("%:p:h") . "/" <CR>
+
+"" Opens a tab edit command with the path of the currently edited file filled
+noremap <Leader>te :tabe <C-R>=expand("%:p:h") . "/" <CR>
+
+"" Vmap for maintain Visual Mode after shifting > and <
+vmap < <gv
+vmap > >gv
+
+" Shift + 矢印でウィンドウサイズを変更
+nnoremap <S-Left>  <C-w><<CR>
+nnoremap <S-Right> <C-w>><CR>
+nnoremap <S-Up>    <C-w>-<CR>
+nnoremap <S-Down>  <C-w>+<CR>
+
+" vを二回で行末まで選択
+vnoremap v $h
+
+" TABにて対応ペアにジャンプ
+nnoremap <Tab> %
+vnoremap <Tab> %
+
+" gui settings
+colorscheme solarized
+
+function! s:RemoveConflictingAlignMaps()
+    if exists("g:loaded_AlignMapsPlugin")
+        AlignMapsClean
+    endif
+endfunction
+command! -nargs=0 RemoveConflictingAlignMaps call s:RemoveConflictingAlignMaps()
+silent! autocmd VimEnter * RemoveConflictingAlignMaps
+
+" :Fmt などで gofmt の代わりに goimports を使う
+let g:gofmt_command = 'goimports'
+
+function! Scouter(file, ...)
+  let pat = '^\s*$\|^\s*"'
+  let lines = readfile(a:file)
+  if !a:0 || !a:1
+    let lines = split(substitute(join(lines, "\n"), '\n\s*\\', '', 'g'), "\n")
+  endif
+  return len(filter(lines,'v:val !~ pat'))
+endfunction
+command! -bar -bang -nargs=? -complete=file Scouter
+      \        echo Scouter(empty(<q-args>) ? $MYVIMRC : expand(<q-args>), <bang>0)
+command! -bar -bang -nargs=? -complete=file GScouter
+      \        echo Scouter(empty(<q-args>) ? $MYGVIMRC : expand(<q-args>), <bang>0)
