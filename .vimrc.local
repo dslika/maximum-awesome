@@ -12,7 +12,7 @@ cnoremap <expr> / getcmdtype() == '/' ? '\/' : '/'
 cnoremap <expr> ? getcmdtype() == '?' ? '\?' : '?'
 
 set textwidth=0         " 自動的に改行が入るのを無効化
-set colorcolumn=80      " その代わり80文字目にラインを入れる
+set colorcolumn=100      " その代わり80文字目にラインを入れる
 set listchars=tab:»-,trail:-,extends:»,precedes:«,nbsp:%
 
 " 対応括弧に'<'と'>'のペアを追加
@@ -23,9 +23,11 @@ set backspace=indent,eol,start
 set nowritebackup
 set nobackup
 set noswapfile
+
 " 前時代的スクリーンベルを無効化
 set t_vb=
 set novisualbell
+set clipboard+=unnamed
 
 "保存時に自動でチェック
 let g:PyFlakeOnWrite = 1
@@ -66,7 +68,7 @@ cnoreabbrev Q q
 function s:setupWrapping()
   set wrap
   set wm=2
-  set textwidth=79
+  set textwidth=100
 endfunction
 
 function TrimWhiteSpace()
@@ -109,6 +111,12 @@ noremap <Leader>te :tabe <C-R>=expand("%:p:h") . "/" <CR>
 vmap < <gv
 vmap > >gv
 
+" Don't copy the contents of an overwritten selection.
+vnoremap p "_dP
+nnoremap x "_x
+nnoremap D "_D
+nnoremap C "_C
+
 " Shift + 矢印でウィンドウサイズを変更
 nnoremap <S-Left>  <C-w><<CR>
 nnoremap <S-Right> <C-w>><CR>
@@ -118,6 +126,8 @@ nnoremap <S-Down>  <C-w>+<CR>
 " vを二回で行末まで選択
 vnoremap v $h
 
+noremap <CR> i<CR><ESC>
+
 " TABにて対応ペアにジャンプ
 nnoremap <Tab> %
 vnoremap <Tab> %
@@ -126,9 +136,9 @@ vnoremap <Tab> %
 colorscheme solarized
 
 function! s:RemoveConflictingAlignMaps()
-    if exists("g:loaded_AlignMapsPlugin")
-        AlignMapsClean
-    endif
+  if exists("g:loaded_AlignMapsPlugin")
+    AlignMapsClean
+  endif
 endfunction
 command! -nargs=0 RemoveConflictingAlignMaps call s:RemoveConflictingAlignMaps()
 silent! autocmd VimEnter * RemoveConflictingAlignMaps
